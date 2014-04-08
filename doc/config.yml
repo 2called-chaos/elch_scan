@@ -1,0 +1,44 @@
+# This file has to be valid YAML!
+# Small howto: http://ess.khhq.net/wiki/YAML_Tutorial
+#    Validate: http://yamllint.com/
+
+# add your movie directories here. Note that we only support
+# "one folder per movie" structures. TV show support may come soon.
+movies:
+  - "/mnt/media/my_movies"
+
+# if you want to add custom formatters you can pass a list of ruby files.
+# take a look at the existing formatters to build your own.
+formatters: []
+
+# Application settings
+application:
+  # Checks for new version when calling "--version" or "-v"
+  check_version: true
+
+  # The command of the editor to use for defining filters
+  # - vim
+  # - nano
+  # - mate -w
+  # - subl -w
+  editor: vim
+
+  # Change these to match your file naming
+  naming:
+    nfo: <baseFileName>.nfo
+    poster: <baseFileName>-poster.jpg
+    fanart: <baseFileName>-fanart.jpg
+    logo: logo.png
+    clear_art: clearart.png
+    cd_art: disc.png
+    banner: <baseFileName>-banner.jpg
+    thumb: <baseFileName>-landscape.jpg
+    trailer: <baseFileName>-trailer
+
+  # used to determine whether a file is a video file or not
+  video_extensions: 3gp avi flv m1v m2v m4v mkv mov mpeg mpg mpe ogg rm wmv
+
+  # This controls the console output and logging
+  logger:
+    # disable colorized output
+    colorize: true

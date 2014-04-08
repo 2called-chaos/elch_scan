@@ -81,6 +81,8 @@ module ElchScan
           end
         end
       end
+    rescue
+      false
     end
 
     def name

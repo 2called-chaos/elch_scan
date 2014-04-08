@@ -14,6 +14,24 @@ module ElchScan
         end
       end
 
+      def dispatch_generate_config
+        if File.exist?(@config_src)
+          log "Configuration already exists, please delete it do generate another one."
+        else
+          FileUtils.cp("#{ROOT}/doc/config.yml", @config_src)
+          log "Sample configuration created!"
+          log "You will need to add at least 1 one movie directory."
+          answer = ask("Do you want to open the configuration file now? [Yes/no]")
+          if ["", "y", "yes"].include?(answer.downcase)
+            if RUBY_PLATFORM.include?("darwin")
+              exec("open #{@config_src}")
+            else
+              system "#{cfg :application, :editor} #{@config_src}"
+            end
+          end
+        end
+      end
+
       def dispatch_info
         logger.log_without_timestr do
           log ""
@@ -63,13 +81,18 @@ module ElchScan
       def dispatch_index
         if cfg(:movies).empty?
           log "You will need at least 1 one movie directory defined in your configuration."
-          if RUBY_PLATFORM.include?("darwin")
-            answer = ask("Do you want to open the file now? [Yes/no]")
-            exec("open #{@config_src}") if ["", "y", "yes"].include?(answer.downcase)
+          answer = ask("Do you want to open the file now? [Yes/no]")
+          if ["", "y", "yes"].include?(answer.downcase)
+            if RUBY_PLATFORM.include?("darwin")
+              exec("open #{@config_src}")
+            else
+              system "#{cfg :application, :editor} #{@config_src}"
+            end
           end
         else
           movies = _index_movies(cfg(:movies))
           old_count = movies.count
+          return log("No movies found :(") if old_count.zero?
           log(
             "We have found " << c("#{movies.count}", :magenta) <<
             c(" movies in ") << c("#{cfg(:movies).count}", :magenta) << c(" directories")
@@ -110,12 +133,17 @@ module ElchScan
             end
 
             # format results
-            formatter = "ElchScan::Formatter::#{@opts[:formatter]}".constantize.new(self)
+            begin
+              formatter = "ElchScan::Formatter::#{@opts[:formatter]}".constantize.new(self)
+            rescue LoadError
+              warn "Unknown formatter " << c("#{@opts[:formatter]}", :magenta) << c(", using Plain...", :red)
+              formatter = "ElchScan::Formatter::Plain".constantize.new(self)
+            end
             results = formatter.format(movies)
 
             # save
             if @opts[:output_file]
-              File.open(@opts[:output_file], "w+") {|f| f.write(results) }
+              File.open(@opts[:output_file], "w+") {|f| f.write(results.join("\n")) }
             else
               logger.log_without_timestr do
                 results.each {|line| log line }
@@ -138,18 +166,22 @@ module ElchScan
 
       def _index_movies directories
         directories.each_with_object({}) do |dir, result|
-          Find.find(dir) do |path|
-            # calculate depth
-            depth = path.scan(?/).count - dir.scan(?/).count
-            depth -= 1 unless File.directory?(path)
+          if FileTest.directory?(dir)
+            Find.find(dir) do |path|
+              # calculate depth
+              depth = path.scan(?/).count - dir.scan(?/).count
+              depth -= 1 unless File.directory?(path)
 
-            if depth == 1 && File.directory?(path)
-              result[File.basename(path)] = Movie.new(
-                self,
-                dir: dir,
-                path: path,
-              )
+              if depth == 1 && File.directory?(path)
+                result[File.basename(path)] = Movie.new(
+                  self,
+                  dir: dir,
+                  path: path,
+                )
+              end
             end
+          else
+            log(c("Directory unreadable, skipping ", :red) << c("#{dir}", :magenta))
           end
         end
       end

@@ -37,6 +37,7 @@ module ElchScan
       @optparse = OptionParser.new do |opts|
         opts.banner = "Usage: elch_scan [options]"
 
+        opts.on("--generate-config", "Generate sample configuration file in ~/.elch_scan.yml") { @opts[:dispatch] = :generate_config }
         opts.on("-h", "--help", "Shows this help") { @opts[:dispatch] = :help }
         opts.on("-v", "--version", "Shows version and other info") { @opts[:dispatch] = :info }
         opts.on("-f", "--formatter HTML", "Use formatter") {|f| @opts[:formatter] = f }
@@ -64,7 +65,9 @@ module ElchScan
       @config = @config.with_indifferent_access
     rescue Exception => e
       if e.message =~ /no such file or directory/i
-        unless @argv.include?("--generate-config")
+        if @argv.include?("--generate-config")
+          @config = { application: { logger: { colorize: true } } }.with_indifferent_access
+        else
           log "Please create or generate a configuration file."
           log(
             c("Use ") << c("elch_scan --generate-config", :magenta) <<
@@ -75,14 +78,19 @@ module ElchScan
       elsif e.message =~ //i
         abort "Configuration file is invalid.", 1
       else
-        puts e.message
-        binding.pry
         raise
       end
     end
 
     def apply_config
       logger.colorize = cfg(:application, :logger, :colorize)
+      (cfg(:formatters) || []).each do |f|
+        begin
+          require File.expand_path(f)
+        rescue LoadError
+          abort "The custom formatter file wasn't found: " << c("#{f}", :magenta)
+        end
+      end
     end
 
     def cfg *keys
