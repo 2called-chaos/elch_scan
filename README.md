@@ -15,20 +15,20 @@ Query your MediaElch/XBMC library with Ruby! Easy and powerful search for your m
 
 First generate a sample configuration by running
 
-   $ elch_scan --generate-config
+    $ elch_scan --generate-config
 
 You will need to specify at least one directory with movies in it. You might want to change other settings as well.
 
 
 To get a basic list of what you've got run
 
-   $ elch_scan -q
+    $ elch_scan -q
 
 ![example](http://files.sven.bmonkeys.net/images/_master_Volumescodebinelch_scan__bash_20140408_072644_20140408_072649.png)
 
 To get a list of available options run
 
-   $ elch_scan --help
+    $ elch_scan --help
 
     Usage: elch_scan [options]
             --generate-config            Generate sample configuration file in ~/.elch_scan.yml
