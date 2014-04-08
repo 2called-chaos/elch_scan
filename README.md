@@ -100,8 +100,8 @@ You can then use your formatter by passing `-f MyFormatter`, it's case sensitive
 
 ## ToDo
 
-[] Add HTML formatter
-[] Add support for TV shows
+- [ ] Add HTML formatter
+- [ ] Add support for TV shows
 
 ## Contributing
 
