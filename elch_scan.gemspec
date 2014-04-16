@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = ElchScan::VERSION
   spec.authors       = ["Sven Pachnit"]
   spec.email         = ["sven@bmonkeys.net"]
-  spec.summary       = %q{ODO: Write a short summary. Required.}
-  spec.description   = %q{ODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{Query your MediaElch/XBMC library with Ruby!}
+  spec.description   = %q{Query your MediaElch/XBMC library with Ruby! Easy and powerful search for your media chaos.}
+  spec.homepage      = "https://github.com/2called-chaos/elch_scan"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
